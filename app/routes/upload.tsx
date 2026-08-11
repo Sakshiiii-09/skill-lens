@@ -30,7 +30,10 @@ const Upload = () => {
 
         setStatusText('Converting to image...');
         const imageFile = await convertPdfToImage(file);
-        if(!imageFile.file) return setStatusText('Error: Failed to convert PDF to image');
+        if (!imageFile.file) {
+            console.log(imageFile.error);
+            return setStatusText(imageFile.error ?? "Conversion failed");
+        }
 
         setStatusText('Uploading the image...');
         const uploadedImage = await fs.upload([imageFile.file]);
@@ -50,7 +53,7 @@ const Upload = () => {
         setStatusText('Analyzing...');
 
         const feedback = await ai.feedback(
-            uploadedFile.path,
+            uploadedImage.path,
             prepareInstructions({ jobTitle , jobDescription})
         )
         if (!feedback) return setStatusText('Error: Failed to analyze resume');
@@ -63,7 +66,7 @@ const Upload = () => {
         await kv.set(`resume:${uuid}`, JSON.stringify(data));
         setStatusText('Analysis complete, redirecting...');
         console.log(data);
-        navigate(`resume/${uuid}`)
+        navigate(`/resume/${uuid}`)
 
     }
 
